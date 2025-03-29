@@ -27,23 +27,23 @@ class ProductoServiceTest {
 
     @Test
     void listarProductos() {
-        // ✅ Usamos Collections.singletonList() para evitar el error
-        when(productoRepository.findAll()).thenReturn(Collections.singletonList(new Producto(1L, "Producto1")));
+        // ✅ MongoDB usa String como ID
+        when(productoRepository.findAll()).thenReturn(Collections.singletonList(new Producto("1", "Producto1")));
 
         assertEquals(1, productoService.listarProductos().size());
     }
 
     @Test
     void obtenerProductoPorId() {
-        Producto producto = new Producto(1L, "Producto1");
-        when(productoRepository.findById(1L)).thenReturn(Optional.of(producto));
+        Producto producto = new Producto("1", "Producto1"); // ✅ Cambiado ID a String
+        when(productoRepository.findById("1")).thenReturn(Optional.of(producto));
 
-        assertEquals(producto, productoService.obtenerProductoPorId(1L));
+        assertEquals(producto, productoService.obtenerProductoPorId("1"));
     }
 
     @Test
     void crearProducto() {
-        Producto producto = new Producto(1L, "Producto1");
+        Producto producto = new Producto("1", "Producto1"); // ✅ Cambiado ID a String
         when(productoRepository.save(producto)).thenReturn(producto);
 
         assertEquals(producto, productoService.crearProducto(producto));

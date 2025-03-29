@@ -1,16 +1,13 @@
 package com.example.miaplicacion.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-@Entity
+@Document(collection = "productos") // Define la colección en MongoDB
 public class Producto {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private String id; // MongoDB usa String como ID en lugar de Long
     private String nombre;
 
     // ✅ Constructor vacío (Spring lo necesita)
@@ -18,17 +15,17 @@ public class Producto {
     }
 
     // ✅ Constructor con parámetros
-    public Producto(Long id, String nombre) {
+    public Producto(String id, String nombre) {
         this.id = id;
         this.nombre = nombre;
     }
 
     // ✅ Getters y Setters
-    public Long getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(String id) {
         this.id = id;
     }
 
