@@ -17,8 +17,9 @@
     <name>mi-aplicacion</name>
     <description>Demo project for Spring Boot</description>
 
+    <!-- Java 24 aún no es estable para Spring Boot -->
     <properties>
-        <java.version>17</java.version>  <!-- Java 24 aún no es estable para Spring Boot -->
+        <java.version>17</java.version>  
     </properties>
 
     <dependencies>
