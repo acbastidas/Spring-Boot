@@ -1,17 +1,29 @@
 package com.example.miaplicacion.model;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 
 @Entity
-@Table(name = "productos")
 public class Producto {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String nombre;
-    private double precio;
 
-    // Getters y Setters
+    // ✅ Constructor vacío (Spring lo necesita)
+    public Producto() {
+    }
+
+    // ✅ Constructor con parámetros
+    public Producto(Long id, String nombre) {
+        this.id = id;
+        this.nombre = nombre;
+    }
+
+    // ✅ Getters y Setters
     public Long getId() {
         return id;
     }
@@ -27,13 +39,4 @@ public class Producto {
     public void setNombre(String nombre) {
         this.nombre = nombre;
     }
-
-    public double getPrecio() {
-        return precio;
-    }
-
-    public void setPrecio(double precio) {
-        this.precio = precio;
-    } // Cierre del método setPrecio
-
-} // Cierre de la clase Producto
+}
