@@ -12,9 +12,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.Collections;
-import java.util.Optional;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @ExtendWith(MockitoExtension.class)
 class ProductoServiceTest {
@@ -27,26 +26,36 @@ class ProductoServiceTest {
 
     @Test
     void listarProductos() {
-        // ✅ MongoDB usa String como ID
-        when(productoRepository.findAll()).thenReturn(Collections.singletonList(new Producto("1", "Producto1")));
+        Producto producto = new Producto("1", "Producto1");
 
-        assertEquals(1, productoService.listarProductos().size());
+        // ✅ Cambiado para devolver un Flux<Producto>
+        when(productoRepository.findAll()).thenReturn(Flux.just(producto));
+
+        // ✅ Se usa block() para obtener los datos de Flux en la prueba
+        assertEquals(1, productoService.listarProductos().collectList().block().size());
     }
 
     @Test
     void obtenerProductoPorId() {
-        Producto producto = new Producto("1", "Producto1"); // ✅ Cambiado ID a String
-        when(productoRepository.findById("1")).thenReturn(Optional.of(producto));
+        Producto producto = new Producto("1", "Producto1");
 
-        assertEquals(producto, productoService.obtenerProductoPorId("1"));
+        // ✅ Cambiado para devolver un Mono<Producto>
+        when(productoRepository.findById("1")).thenReturn(Mono.just(producto));
+
+        // ✅ Se usa block() para esperar el valor en la prueba
+        assertEquals(producto, productoService.obtenerProductoPorId("1").block());
     }
 
     @Test
     void crearProducto() {
-        Producto producto = new Producto("1", "Producto1"); // ✅ Cambiado ID a String
-        when(productoRepository.save(producto)).thenReturn(producto);
+        Producto producto = new Producto("1", "Producto1");
 
-        assertEquals(producto, productoService.crearProducto(producto));
+        // ✅ Cambiado para devolver un Mono<Producto>
+        when(productoRepository.save(producto)).thenReturn(Mono.just(producto));
+
+        // ✅ Se usa block() para obtener el resultado
+        assertEquals(producto, productoService.crearProducto(producto).block());
+
         verify(productoRepository, times(1)).save(producto);
     }
 }

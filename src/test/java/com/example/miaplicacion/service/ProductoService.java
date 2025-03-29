@@ -3,8 +3,8 @@ package com.example.miaplicacion.service;
 import com.example.miaplicacion.model.Producto;
 import com.example.miaplicacion.repository.ProductoRepository;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 @Service
 public class ProductoService {
@@ -15,15 +15,15 @@ public class ProductoService {
         this.productoRepository = productoRepository;
     }
 
-    public List<Producto> listarProductos() {
+    public Flux<Producto> listarProductos() {
         return productoRepository.findAll();
     }
 
-    public Producto obtenerProductoPorId(String id) {
-        return productoRepository.findById(id).orElse(null);
+    public Mono<Producto> obtenerProductoPorId(String id) {
+        return productoRepository.findById(id).defaultIfEmpty(new Producto("idPorDefecto", "Producto por defecto"));
     }
 
-    public Producto crearProducto(Producto producto) {
+    public Mono<Producto> crearProducto(Producto producto) {
         return productoRepository.save(producto);
     }
 }
