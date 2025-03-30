@@ -34,7 +34,11 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-mongodb</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-mongodb-reactive</artifactId>
+        </dependency>
+        
         <!-- WebFlux (para WebTestClient) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -46,6 +50,10 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter</artifactId>
+        </dependency>
             <exclusions>
                 <exclusion>
                     <groupId>org.junit.vintage</groupId>
@@ -72,7 +80,16 @@
             <artifactId>reactor-test</artifactId>
             <scope>test</scope>
         </dependency>
-    </dependencies>
+
+        <!-- Dependencia de Spring Boot para herramientas de desarrollo -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-devtools</artifactId>
+            <scope>runtime</scope>
+            <optional>true</optional>
+        </dependency>
+</dependencies>
+
 
     <build>
         <plugins>
