@@ -17,9 +17,8 @@
     <name>mi-aplicacion</name>
     <description>Demo project for Spring Boot</description>
 
-    <!-- Java 24 aún no es estable para Spring Boot -->
     <properties>
-        <java.version>17</java.version>  
+        <java.version>23</java.version>  
     </properties>
 
     <dependencies>
@@ -50,10 +49,6 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter</artifactId>
-        </dependency>
             <exclusions>
                 <exclusion>
                     <groupId>org.junit.vintage</groupId>
@@ -88,8 +83,7 @@
             <scope>runtime</scope>
             <optional>true</optional>
         </dependency>
-</dependencies>
-
+    </dependencies>
 
     <build>
         <plugins>
@@ -97,7 +91,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.example.miaplicacion.MiAplicacionApplication</mainClass>
+                    <mainClass>com.ejemplo.miaplicacion.MiAplicacionApplication</mainClass>
                 </configuration>
             </plugin>
         </plugins>
