@@ -3,6 +3,7 @@ package com.example.miaplicacion.controller;
 import com.example.miaplicacion.model.Producto;
 import com.example.miaplicacion.service.ProductoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -30,7 +31,8 @@ public class ProductoController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteProducto(@PathVariable String id) {
-        productoService.eliminarProducto(id);
+    public ResponseEntity<Void> deleteProducto(@PathVariable String id) {
+        productoService.deleteById(id);
+        return ResponseEntity.noContent().build(); // Retorna 204 No Content
     }
 }

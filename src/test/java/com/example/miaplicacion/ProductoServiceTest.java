@@ -49,10 +49,10 @@ class ProductoServiceTest {
     void obtenerProductoPorId() {
         when(productoRepository.findById("1")).thenReturn(Optional.of(producto));
 
-        Optional<Producto> resultado = productoService.obtenerProductoPorId("1");
+        Producto resultado = productoService.obtenerProductoPorId("1");
 
-        assertThat(resultado).isPresent();
-        assertThat(resultado.get().getNombre()).isEqualTo("Producto de prueba");
+        assertThat(resultado).isNotNull();
+        assertThat(resultado.getNombre()).isEqualTo("Producto de prueba");
 
         verify(productoRepository, times(1)).findById("1");
     }
