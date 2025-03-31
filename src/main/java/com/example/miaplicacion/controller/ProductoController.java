@@ -3,6 +3,7 @@ package com.example.miaplicacion.controller;
 import com.example.miaplicacion.model.Producto;
 import com.example.miaplicacion.service.ProductoService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,6 +27,7 @@ public class ProductoController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public Producto createProducto(@RequestBody Producto producto) {
         return productoService.crearProducto(producto);
     }
