@@ -5,64 +5,62 @@ import com.example.miaplicacion.repository.ProductoRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.web.reactive.server.WebTestClient;
-import static org.assertj.core.api.Assertions.assertThat;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@AutoConfigureWebTestClient
+@SpringBootTest
+@AutoConfigureMockMvc
 class ProductoIntegrationTest {
 
     @Autowired
-    private WebTestClient webTestClient;
+    private MockMvc mockMvc;
 
     @Autowired
     private ProductoRepository productoRepository;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     private Producto producto;
 
     @BeforeEach
     void setUp() {
-        productoRepository.deleteAll().block(); // Limpiar la BD antes de cada prueba
+        productoRepository.deleteAll();
         producto = new Producto(null, "Producto de prueba");
     }
 
     @Test
-    void crearProducto() {
-        webTestClient.post().uri("/api/productos")
-                .bodyValue(producto)
-                .exchange()
-                .expectStatus().isCreated()
-                .expectBody(Producto.class)
-                .value(p -> {
-                    assertThat(p.getId()).isNotNull();
-                    assertThat(p.getNombre()).isEqualTo("Producto de prueba");
-                });
+    void crearProducto() throws Exception {
+        mockMvc.perform(post("/api/productos")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(producto)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.id").isNotEmpty())
+                .andExpect(jsonPath("$.nombre").value("Producto de prueba"));
     }
 
     @Test
-    void obtenerProductoPorId() {
-        Producto productoGuardado = productoRepository.save(producto).block();
-        assert productoGuardado != null;
+    void obtenerProductoPorId() throws Exception {
+        Producto productoGuardado = productoRepository.save(producto);
 
-        webTestClient.get().uri("/api/productos/" + productoGuardado.getId())
-                .exchange()
-                .expectStatus().isOk()
-                .expectBody(Producto.class)
-                .value(p -> assertThat(p.getNombre()).isEqualTo("Producto de prueba"));
+        mockMvc.perform(get("/api/productos/" + productoGuardado.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.nombre").value("Producto de prueba"));
     }
 
     @Test
-    void eliminarProducto() {
-        Producto productoGuardado = productoRepository.save(producto).block();
-        assert productoGuardado != null;
+    void eliminarProducto() throws Exception {
+        Producto productoGuardado = productoRepository.save(producto);
 
-        webTestClient.delete().uri("/api/productos/" + productoGuardado.getId())
-                .exchange()
-                .expectStatus().isNoContent();
+        mockMvc.perform(delete("/api/productos/" + productoGuardado.getId()))
+                .andExpect(status().isNoContent());
 
-        boolean existe = productoRepository.findById(productoGuardado.getId()).blockOptional().isPresent();
-        assertThat(existe).isFalse();
+        boolean existe = productoRepository.findById(productoGuardado.getId()).isPresent();
+        assert !existe;
     }
 }

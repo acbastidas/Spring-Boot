@@ -1,21 +1,20 @@
 package com.example.miaplicacion;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-import com.example.miaplicacion.service.ProductoService;
-import com.example.miaplicacion.repository.ProductoRepository;
 import com.example.miaplicacion.model.Producto;
-
+import com.example.miaplicacion.repository.ProductoRepository;
+import com.example.miaplicacion.service.ProductoService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
+import org.mockito.MockitoAnnotations;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 
-@ExtendWith(MockitoExtension.class)
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.*;
+
 class ProductoServiceTest {
 
     @Mock
@@ -24,38 +23,58 @@ class ProductoServiceTest {
     @InjectMocks
     private ProductoService productoService;
 
+    private Producto producto;
+
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+        producto = new Producto("1", "Producto de prueba");
+    }
+
     @Test
     void listarProductos() {
-        Producto producto = new Producto("1", "Producto1");
+        List<Producto> productos = Arrays.asList(producto);
+        when(productoRepository.findAll()).thenReturn(productos);
 
-        // ✅ Cambiado para devolver un Flux<Producto>
-        when(productoRepository.findAll()).thenReturn(Flux.just(producto));
+        List<Producto> resultado = productoService.listarProductos();
 
-        // ✅ Se usa block() para obtener los datos de Flux en la prueba
-        assertEquals(1, productoService.listarProductos().collectList().block().size());
+        assertThat(resultado).isNotEmpty();
+        assertThat(resultado.size()).isEqualTo(1);
+        assertThat(resultado.get(0).getNombre()).isEqualTo("Producto de prueba");
+
+        verify(productoRepository, times(1)).findAll();
     }
 
     @Test
     void obtenerProductoPorId() {
-        Producto producto = new Producto("1", "Producto1");
+        when(productoRepository.findById("1")).thenReturn(Optional.of(producto));
 
-        // ✅ Cambiado para devolver un Mono<Producto>
-        when(productoRepository.findById("1")).thenReturn(Mono.just(producto));
+        Optional<Producto> resultado = productoService.obtenerProductoPorId("1");
 
-        // ✅ Se usa block() para esperar el valor en la prueba
-        assertEquals(producto, productoService.obtenerProductoPorId("1").block());
+        assertThat(resultado).isPresent();
+        assertThat(resultado.get().getNombre()).isEqualTo("Producto de prueba");
+
+        verify(productoRepository, times(1)).findById("1");
     }
 
     @Test
     void crearProducto() {
-        Producto producto = new Producto("1", "Producto1");
+        when(productoRepository.save(producto)).thenReturn(producto);
 
-        // ✅ Cambiado para devolver un Mono<Producto>
-        when(productoRepository.save(producto)).thenReturn(Mono.just(producto));
+        Producto resultado = productoService.crearProducto(producto);
 
-        // ✅ Se usa block() para obtener el resultado
-        assertEquals(producto, productoService.crearProducto(producto).block());
+        assertThat(resultado).isNotNull();
+        assertThat(resultado.getNombre()).isEqualTo("Producto de prueba");
 
         verify(productoRepository, times(1)).save(producto);
+    }
+
+    @Test
+    void eliminarProducto() {
+        doNothing().when(productoRepository).deleteById("1");
+
+        productoService.deleteById("1");
+
+        verify(productoRepository, times(1)).deleteById("1");
     }
 }
