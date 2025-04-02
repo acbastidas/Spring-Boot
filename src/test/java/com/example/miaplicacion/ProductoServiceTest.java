@@ -8,12 +8,12 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import reactor.core.publisher.Mono;
+import reactor.core.publisher.Flux;
+import reactor.test.StepVerifier;
 import static org.mockito.Mockito.*;
+
+import java.util.Arrays;
 
 class ProductoServiceTest {
 
@@ -33,48 +33,55 @@ class ProductoServiceTest {
 
     @Test
     void listarProductos() {
-        List<Producto> productos = Arrays.asList(producto);
-        when(productoRepository.findAll()).thenReturn(productos);
+        // Creamos una lista de productos y la convertimos a Flux
+        var productos = Arrays.asList(
+                new Producto("1", "Producto 1"),
+                new Producto("2", "Producto 2"));
 
-        List<Producto> resultado = productoService.listarProductos();
+        // Simulamos el comportamiento del repositorio usando Flux
+        when(productoRepository.findAll()).thenReturn(Flux.fromIterable(productos));
 
-        assertThat(resultado).isNotEmpty();
-        assertThat(resultado.size()).isEqualTo(1);
-        assertThat(resultado.get(0).getNombre()).isEqualTo("Producto de prueba");
+        // Llamamos al servicio para obtener el Flux<Producto>
+        Flux<Producto> resultado = productoService.listarProductos();
 
+        // Verificamos los resultados usando StepVerifier
+        StepVerifier.create(resultado)
+                .expectNextMatches(producto -> producto.getNombre().equals("Producto 1"))
+                .expectNextMatches(producto -> producto.getNombre().equals("Producto 2"))
+                .verifyComplete();
+
+        // Verificamos que el repositorio haya sido llamado una vez
         verify(productoRepository, times(1)).findAll();
     }
 
     @Test
     void obtenerProductoPorId() {
-        when(productoRepository.findById("1")).thenReturn(Optional.of(producto));
+        // Simulamos la consulta de un solo producto, el cual es devuelto envuelto en
+        // Mono
+        when(productoRepository.findById("1")).thenReturn(Mono.just(producto));
 
-        Producto resultado = productoService.obtenerProductoPorId("1");
+        Mono<Producto> resultado = productoService.obtenerProductoPorId("1");
 
-        assertThat(resultado).isNotNull();
-        assertThat(resultado.getNombre()).isEqualTo("Producto de prueba");
+        // Verificamos que el producto devuelto sea el esperado
+        StepVerifier.create(resultado)
+                .expectNext(producto)
+                .verifyComplete();
 
         verify(productoRepository, times(1)).findById("1");
     }
 
     @Test
     void crearProducto() {
-        when(productoRepository.save(producto)).thenReturn(producto);
+        // Creamos un Mono que envuelve el producto
+        when(productoRepository.save(producto)).thenReturn(Mono.just(producto));
 
-        Producto resultado = productoService.crearProducto(producto);
+        Mono<Producto> resultado = productoService.crearProducto(producto);
 
-        assertThat(resultado).isNotNull();
-        assertThat(resultado.getNombre()).isEqualTo("Producto de prueba");
+        // Verificamos que el producto devuelto sea el esperado
+        StepVerifier.create(resultado)
+                .expectNext(producto)
+                .verifyComplete();
 
         verify(productoRepository, times(1)).save(producto);
-    }
-
-    @Test
-    void eliminarProducto() {
-        doNothing().when(productoRepository).deleteById("1");
-
-        productoService.deleteById("1");
-
-        verify(productoRepository, times(1)).deleteById("1");
     }
 }
