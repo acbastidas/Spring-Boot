@@ -58,16 +58,24 @@ class ProductoIntegrationTest {
 
     @Test
     void eliminarProductoYConfirmarQueNoExiste() {
-        Producto productoGuardado = productoRepository.save(producto).block(); // Asignamos el resultado correctamente
+        // Guardamos el producto en la base de datos
+        Producto productoGuardado = productoRepository.save(producto).block();
+        assertThat(productoGuardado).isNotNull(); // Verificamos que el producto fue guardado
 
+        // Realizamos el DELETE
         webTestClient.delete().uri("/api/productos/" + productoGuardado.getId())
                 .exchange()
-                .expectStatus().isNoContent();
+                .expectStatus().isNoContent(); // Esperamos 204 No Content
 
-        // Confirmar que ya no existe con GET
+        // Verificamos que el producto ya no existe, debería devolver 404 NOT_FOUND
         webTestClient.get().uri("/api/productos/" + productoGuardado.getId())
                 .exchange()
-                .expectStatus().isNotFound();
+                .expectStatus().isNotFound(); // Esperamos 404 NOT_FOUND
+
+        // Verificación adicional para asegurarse de que el producto realmente ha sido
+        // eliminado en la base de datos
+        Producto productoEliminado = productoRepository.findById(productoGuardado.getId()).block();
+        assertThat(productoEliminado).isNull(); // Debería ser null si el producto fue eliminado
     }
 
     @Test
