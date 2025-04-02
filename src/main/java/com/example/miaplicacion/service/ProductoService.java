@@ -32,6 +32,6 @@ public class ProductoService {
     }
 
     public void deleteById(String id) {
-        productoRepository.deleteById(id).subscribe();
+        productoRepository.deleteById(id).block(); // .block() asegura que la operación se complete antes de continuar
     }
 }
