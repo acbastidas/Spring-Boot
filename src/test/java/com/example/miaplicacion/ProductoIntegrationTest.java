@@ -10,6 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import reactor.core.publisher.Mono;
+import reactor.test.StepVerifier;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -58,24 +59,25 @@ class ProductoIntegrationTest {
 
     @Test
     void eliminarProductoYConfirmarQueNoExiste() {
-        // Guardamos el producto en la base de datos
         Producto productoGuardado = productoRepository.save(producto).block();
-        assertThat(productoGuardado).isNotNull(); // Verificamos que el producto fue guardado
 
-        // Realizamos el DELETE
+        assertThat(productoGuardado).isNotNull();
+
+        // 🔹 Paso 1: Eliminar el producto
         webTestClient.delete().uri("/api/productos/" + productoGuardado.getId())
                 .exchange()
-                .expectStatus().isNoContent(); // Esperamos 204 No Content
+                .expectStatus().isNoContent();
 
-        // Verificamos que el producto ya no existe, debería devolver 404 NOT_FOUND
+        // 🔹 Paso 2: Esperar hasta que el producto no exista en la BD antes de hacer el
+        // GET
+        StepVerifier.create(productoRepository.findById(productoGuardado.getId()))
+                .expectNextCount(0) // Esperamos que no haya ningún producto en la BD
+                .verifyComplete();
+
+        // 🔹 Paso 3: Ahora sí ejecutar el GET
         webTestClient.get().uri("/api/productos/" + productoGuardado.getId())
                 .exchange()
-                .expectStatus().isNotFound(); // Esperamos 404 NOT_FOUND
-
-        // Verificación adicional para asegurarse de que el producto realmente ha sido
-        // eliminado en la base de datos
-        Producto productoEliminado = productoRepository.findById(productoGuardado.getId()).block();
-        assertThat(productoEliminado).isNull(); // Debería ser null si el producto fue eliminado
+                .expectStatus().isNotFound(); // Ahora sí debería retornar 404
     }
 
     @Test
