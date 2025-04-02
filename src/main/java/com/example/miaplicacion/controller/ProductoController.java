@@ -23,9 +23,10 @@ public class ProductoController {
     }
 
     @GetMapping("/{id}")
-    public Mono<Producto> getProductoById(@PathVariable String id) {
-        // Devuelve un Mono en lugar de Producto
-        return productoService.obtenerProductoPorId(id);
+    public Mono<ResponseEntity<Producto>> getProductoById(@PathVariable String id) {
+        return productoService.obtenerProductoPorId(id)
+                .map(ResponseEntity::ok)
+                .defaultIfEmpty(ResponseEntity.notFound().build()); // 🔹 Devolver 404 si no se encuentra
     }
 
     @PostMapping
