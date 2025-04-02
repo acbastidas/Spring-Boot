@@ -24,8 +24,6 @@ public class ProductoService {
     public Mono<Producto> obtenerProductoPorId(String id) {
         return productoRepository.findById(id)
                 .switchIfEmpty(Mono.just(new Producto("idPorDefecto", "Producto por defecto"))); // Retorna un valor por
-                                                                                                 // defecto si no lo
-                                                                                                 // encuentra
     }
 
     // Cambiar el tipo de retorno a Mono<Producto>
